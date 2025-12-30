@@ -169,8 +169,8 @@ async def handler(websocket):
         await start(websocket)
 
 def health_check(connection, request):
-    if request.path == "/healthz":
-        return connection.respond(http.HTTPStatus.OK,"OK\n")
+    if request.path in ("/", "/healthz"):
+        return http.HTTPStatus.OK, [], b"OK\n"
 
 async def ws_router(websocket, path):
     if path != "/ws":
