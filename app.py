@@ -170,11 +170,19 @@ async def handler(websocket):
 
 def health_check(connection, request):
     if request.path == "/healthz":
-        return connection.respond(http.HTTPStatus.OK,"OK\n")
+        return connection.respond(http.HTTPStatus.OK,"OK\n", headers=[("Content-Type", "text/plain")])
+
+async def ws_router(websocket, path):
+    if path != "/ws":
+        # Reject non-WebSocket or wrong-path connections
+        await websocket.close(code=1008, reason="Invalid WebSocket path")
+        return
+
+    await handler(websocket)
 
 async def main():
     port = int(os.environ.get("PORT","8001"))
-    async with serve(handler,"0.0.0.0", port,process_request=health_check) as server:
+    async with serve(ws_router,"0.0.0.0", port,process_request=health_check) as server:
         loop = asyncio.get_running_loop()
         loop.add_signal_handler(signal.SIGTERM, server.close)
         print(f"Websocket server Running on port {port}")
