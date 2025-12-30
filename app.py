@@ -79,7 +79,7 @@ async def start(websocket):
     connected = {websocket}
 
     join_key = secrets.token_urlsafe(12)
-    print(f"link for second player: http://127.0.0.1:8000/?join={join_key}")
+    #print(f"link for second player: http://127.0.0.1:8000/?join={join_key}")
     JOIN[join_key] = game, connected
 
     watch_key = secrets.token_urlsafe(12)
@@ -173,7 +173,7 @@ def health_check(connection, request):
 
 async def main():
     port = int(os.environ.get("PORT","8001"))
-    async with serve(handler, "", port,process_request=health_check) as server:
+    async with serve(handler,"0.0.0.0", port,process_request=health_check) as server:
         loop = asyncio.get_running_loop()
         loop.add_signal_handler(signal.SIGTERM, server.close)
         await server.serve_forever()
