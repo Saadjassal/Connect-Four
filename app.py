@@ -170,7 +170,7 @@ async def handler(websocket):
 
 def health_check(connection, request):
     if request.path == "/healthz":
-        return connection.respond(http.HTTPStatus.OK,"OK\n", headers=[("Content-Type", "text/plain")])
+        return connection.respond(http.HTTPStatus.OK,"OK\n")
 
 async def ws_router(websocket, path):
     if path != "/ws":
