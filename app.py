@@ -1,5 +1,8 @@
 import asyncio
 import json
+import http
+import os 
+import signal
 import secrets
 from websockets.asyncio.server import broadcast, serve
 from connect4 import PLAYER1, PLAYER2, Connect4
@@ -19,10 +22,7 @@ async def error(websocket, message):
 
 async def replay(websocket, game):
   
-    # Make a copy to avoid an exception if game.moves changes while iteration
-    # is in progress. If a move is played while replay is running, moves will
-    # be sent out of order but each move will be sent once and eventually the
-    # UI will be consistent.
+
     for player, column, row in game.moves.copy():
         event = {
             "type": "play",
@@ -48,7 +48,7 @@ async def play(websocket, game, player, connected):
             # Play the move.
             row = game.play(player, column)
         except ValueError as exc:
-            # Send an "error" event if the move was illegal.
+            
             await error(websocket, str(exc))
             continue
 
@@ -75,8 +75,6 @@ async def start(websocket):
     Handle a connection from the first player: start a new game.
 
     """
-    # Initialize a Connect Four game, the set of WebSocket connections
-    # receiving moves from this game, and secret access tokens.
     game = Connect4()
     connected = {websocket}
 
@@ -169,9 +167,15 @@ async def handler(websocket):
         # First player starts a new game.
         await start(websocket)
 
+def health_check(connection, request):
+    if request.path == "/healthz":
+        return connection.respond(http.HTTPStatus.OK,"OK\n")
 
 async def main():
-    async with serve(handler, "", 8001) as server:
+    port = int(os.environ.get("PORT","8001"))
+    async with serve(handler, "", port,process_request=health_check) as server:
+        loop = asyncio.get_running_loop()
+        loop.add_signal_handler(signal.SIGTERM, server.close)
         await server.serve_forever()
 
 
