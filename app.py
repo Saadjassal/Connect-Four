@@ -1,19 +1,21 @@
 import asyncio
-import json
 import http
-import os 
-import signal
+import json
+import os
 import secrets
+import signal
 from websockets.asyncio.server import broadcast, serve
 from connect4 import PLAYER1, PLAYER2, Connect4
-
 
 
 JOIN = {}
 WATCH = {}
 
 async def error(websocket, message):
+    """
+    Send an error message.
 
+    """
     event = {
         "type": "error",
         "message": message,
@@ -22,8 +24,14 @@ async def error(websocket, message):
 
 
 async def replay(websocket, game):
-  
+    """
+    Send previous moves.
 
+    """
+    # Make a copy to avoid an exception if game.moves changes while iteration
+    # is in progress. If a move is played while replay is running, moves will
+    # be sent out of order but each move will be sent once and eventually the
+    # UI will be consistent.
     for player, column, row in game.moves.copy():
         event = {
             "type": "play",
@@ -49,7 +57,7 @@ async def play(websocket, game, player, connected):
             # Play the move.
             row = game.play(player, column)
         except ValueError as exc:
-            
+            # Send an "error" event if the move was illegal.
             await error(websocket, str(exc))
             continue
 
@@ -76,11 +84,12 @@ async def start(websocket):
     Handle a connection from the first player: start a new game.
 
     """
+    # Initialize a Connect Four game, the set of WebSocket connections
+    # receiving moves from this game, and secret access tokens.
     game = Connect4()
     connected = {websocket}
 
     join_key = secrets.token_urlsafe(12)
-    #print(f"link for second player: http://127.0.0.1:8000/?join={join_key}")
     JOIN[join_key] = game, connected
 
     watch_key = secrets.token_urlsafe(12)
@@ -168,24 +177,17 @@ async def handler(websocket):
         # First player starts a new game.
         await start(websocket)
 
+
 def health_check(connection, request):
-    if request.path in ("/", "/healthz"):
-        return http.HTTPStatus.OK, [], b"OK\n"
+    if request.path == "/healthz":
+        return connection.respond(http.HTTPStatus.OK, "OK\n")
 
-async def ws_router(websocket, path):
-    if path != "/ws":
-        # Reject non-WebSocket or wrong-path connections
-        await websocket.close(code=1008, reason="Invalid WebSocket path")
-        return
-
-    await handler(websocket)
 
 async def main():
-    port = int(os.environ.get("PORT","8001"))
-    async with serve(ws_router,"0.0.0.0", port,process_request=health_check) as server:
+    port = int(os.environ.get("PORT", "8001"))
+    async with serve(handler, "", port, process_request=health_check) as server:
         loop = asyncio.get_running_loop()
         loop.add_signal_handler(signal.SIGTERM, server.close)
-        print(f"Websocket server Running on port {port}")
         await server.wait_closed()
 
 
