@@ -1,27 +1,32 @@
+````markdown
 # Connect 4 Project
 
 ## Overview
 
-This is a **Connect 4 game** implemented in Python. Play locally on your computer using the Python application.
+This project is a **Connect 4 game** implemented in Python.
 
 ## How to Run
 
-1. **Start Local HTTP Server** (optional)  
-   Navigate to this folder and run:
-   ```
-   python -m http.server 8000 --bind 127.0.0.1
-   ```
+### 1. Start Local HTTP Server (Optional)
 
+Navigate to the project folder in your terminal and run:
+
+```bash
+python -m http.server 8000 --bind 127.0.0.1
+```
 ````
 
-This starts a server at `http://127.0.0.1:8000`.
+This will start a local server at: [http://127.0.0.1:8000](http://127.0.0.1:8000)
 
-2. **Run the Game**
-   Run the Python application to play:
+### 2. Run the Python Application
 
-   ```
-   python app.py
-   ```
+To play the game, run:
+
+```bash
+python app.py
+```
+
+Ensure you are in the same directory as `app.py`.
 
 ## Game Description
 
@@ -34,4 +39,3 @@ This starts a server at `http://127.0.0.1:8000`.
 
 - Python 3.x installed
 - Run all commands from the project directory
-````
