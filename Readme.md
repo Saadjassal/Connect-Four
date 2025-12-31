@@ -8,7 +8,7 @@ This is a **Connect 4 game** implemented in Python. Play locally on your compute
 
 1. **Start Local HTTP Server** (optional)  
    Navigate to this folder and run:
-   ```bash
+   ```
    python -m http.server 8000 --bind 127.0.0.1
    ```
 
@@ -19,7 +19,7 @@ This starts a server at `http://127.0.0.1:8000`.
 2. **Run the Game**
    Run the Python application to play:
 
-   ```bash
+   ```
    python app.py
    ```
 
