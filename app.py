@@ -1,8 +1,7 @@
-
+from websockets.asyncio.server import broadcast, serve
 import asyncio
 import json
 import secrets
-from websockets.asyncio.server import broadcast, serve
 from connect4 import PLAYER1, PLAYER2, Connect4
 
 
@@ -10,10 +9,6 @@ JOIN = {}
 WATCH = {}
 
 async def error(websocket, message):
-    """
-    Send an error message.
-
-    """
     event = {
         "type": "error",
         "message": message,
@@ -22,14 +17,7 @@ async def error(websocket, message):
 
 
 async def replay(websocket, game):
-    """
-    Send previous moves.
 
-    """
-    # Make a copy to avoid an exception if game.moves changes while iteration
-    # is in progress. If a move is played while replay is running, moves will
-    # be sent out of order but each move will be sent once and eventually the
-    # UI will be consistent.
     for player, column, row in game.moves.copy():
         event = {
             "type": "play",
@@ -41,18 +29,14 @@ async def replay(websocket, game):
 
 
 async def play(websocket, game, player, connected):
-    """
-    Receive and process moves from a player.
-
-    """
+ 
     async for message in websocket:
-        # Parse a "play" event from the UI.
-        event = json.loads(message)
+       
+        event = json.loads(message)  # Parse a "play" event from the UI.
         assert event["type"] == "play"
         column = event["column"]
 
         try:
-            # Play the move.
             row = game.play(player, column)
         except ValueError as exc:
             # Send an "error" event if the move was illegal.
@@ -78,12 +62,7 @@ async def play(websocket, game, player, connected):
 
 
 async def start(websocket):
-    """
-    Handle a connection from the first player: start a new game.
-
-    """
-    # Initialize a Connect Four game, the set of WebSocket connections
-    # receiving moves from this game, and secret access tokens.
+  
     game = Connect4()
     connected = {websocket}
 
@@ -96,8 +75,6 @@ async def start(websocket):
     WATCH[watch_key] = game, connected
 
     try:
-        # Send the secret access tokens to the browser of the first player,
-        # where they'll be used for building "join" and "watch" links.
         event = {
             "type": "init",
             "join": join_key,
@@ -112,10 +89,7 @@ async def start(websocket):
 
 
 async def join(websocket, join_key):
-    """
-    Handle a connection from the second player: join an existing game.
-
-    """
+   
     # Find the Connect Four game.
     try:
         game, connected = JOIN[join_key]
@@ -135,10 +109,7 @@ async def join(websocket, join_key):
 
 
 async def watch(websocket, watch_key):
-    """
-    Handle a connection from a spectator: watch an existing game.
-
-    """
+   
     # Find the Connect Four game.
     try:
         game, connected = WATCH[watch_key]
@@ -146,35 +117,25 @@ async def watch(websocket, watch_key):
         await error(websocket, "Game not found.")
         return
 
-    # Register to receive moves from this game.
-    connected.add(websocket)
+    
+    connected.add(websocket)# Register
     try:
-        # Send previous moves, in case the game already started.
         await replay(websocket, game)
-        # Keep the connection open, but don't receive any messages.
         await websocket.wait_closed()
     finally:
         connected.remove(websocket)
 
 
 async def handler(websocket):
-    """
-    Handle a connection and dispatch it according to who is connecting.
-
-    """
-    # Receive and parse the "init" event from the UI.
     message = await websocket.recv()
     event = json.loads(message)
     assert event["type"] == "init"
 
     if "join" in event:
-        # Second player joins an existing game.
         await join(websocket, event["join"])
     elif "watch" in event:
-        # Spectator watches an existing game.
         await watch(websocket, event["watch"])
     else:
-        # First player starts a new game.
         await start(websocket)
 
 

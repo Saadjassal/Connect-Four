@@ -4,16 +4,7 @@ PLAYER1, PLAYER2 = "red", "yellow"
 
 
 class Connect4:
-    """
-    A Connect Four game.
-
-    Play moves with :meth:`play`.
-
-    Get past moves with :attr:`moves`.
-
-    Check for a victory with :attr:`winner`.
-
-    """
+   
 
     def __init__(self):
         self.moves = []

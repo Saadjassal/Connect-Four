@@ -2,15 +2,12 @@ import { createBoard, playMove } from "./connect4.js";
 
 function initGame(websocket) {
   websocket.addEventListener("open", () => {
-    // Send an "init" event according to who is connecting.
     const params = new URLSearchParams(window.location.search);
     let event = { type: "init" };
     if (params.has("join")) {
-      // Second player joins an existing game.
-      event.join = params.get("join");
+      event.join = params.get("join"); // Second player joins an existing game.
     } else if (params.has("watch")) {
-      // Spectator watches an existing game.
-      event.watch = params.get("watch");
+      event.watch = params.get("watch"); // Spectator watches an existing game.
     } else {
       // First player starts a new game.
     }
@@ -59,7 +56,7 @@ function sendMoves(board, websocket) {
   // When clicking a column, send a "play" event for a move in that column.
   board.addEventListener("click", ({ target }) => {
     const column = target.dataset.column;
-    // Ignore clicks outside a column.
+
     if (column === undefined) {
       return;
     }
@@ -72,10 +69,9 @@ function sendMoves(board, websocket) {
 }
 
 window.addEventListener("DOMContentLoaded", () => {
-  // Initialize the UI.
+  // Initialize the interface
   const board = document.querySelector(".board");
   createBoard(board);
-  // Open the WebSocket connection and register event handlers.
   const websocket = new WebSocket("ws://localhost:8001/");
   initGame(websocket);
   receiveMoves(board, websocket);
