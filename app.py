@@ -1,9 +1,7 @@
+
 import asyncio
-import http
 import json
-import os
 import secrets
-import signal
 from websockets.asyncio.server import broadcast, serve
 from connect4 import PLAYER1, PLAYER2, Connect4
 
@@ -90,9 +88,11 @@ async def start(websocket):
     connected = {websocket}
 
     join_key = secrets.token_urlsafe(12)
+    print(f"http://127.0.0.1:8000/?join={join_key}")
     JOIN[join_key] = game, connected
 
     watch_key = secrets.token_urlsafe(12)
+    print(f"http://127.0.0.1:8000/?watch={watch_key}")
     WATCH[watch_key] = game, connected
 
     try:
@@ -178,17 +178,9 @@ async def handler(websocket):
         await start(websocket)
 
 
-def health_check(connection, request):
-    if request.path == "/healthz":
-        return connection.respond(http.HTTPStatus.OK, "OK\n")
-
-
 async def main():
-    port = int(os.environ.get("PORT", "8001"))
-    async with serve(handler, "", port, process_request=health_check) as server:
-        loop = asyncio.get_running_loop()
-        loop.add_signal_handler(signal.SIGTERM, server.close)
-        await server.wait_closed()
+    async with serve(handler, "", 8001) as server:
+        await server.serve_forever()
 
 
 if __name__ == "__main__":
