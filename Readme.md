@@ -1,9 +1,13 @@
 ````markdown
-# Connect 4 Project
+# Connect 4 Game
 
 ## Overview
 
-This project is a **Connect 4 game** implemented in Python.
+This project is a **Connect 4 game** implemented in Python.  
+You can play it locally on your computer.  
+An optional HTTP server is included for serving static files if needed.
+
+---
 
 ## How to Run
 
@@ -16,9 +20,11 @@ python -m http.server 8000 --bind 127.0.0.1
 ```
 ````
 
-This will start a local server at: [http://127.0.0.1:8000](http://127.0.0.1:8000)
+Access the server at: [http://127.0.0.1:8000](http://127.0.0.1:8000)
 
-### 2. Run the Python Application
+---
+
+### 2. Run the Python Game
 
 To play the game, run:
 
@@ -26,7 +32,9 @@ To play the game, run:
 python app.py
 ```
 
-Ensure you are in the same directory as `app.py`.
+Make sure you are in the same directory as `app.py`.
+
+---
 
 ## Game Description
 
@@ -34,6 +42,8 @@ Ensure you are in the same directory as `app.py`.
 - Players take turns dropping colored discs into a 7-column, 6-row grid.
 - The first player to connect four discs **vertically, horizontally, or diagonally** wins.
 - If the board fills up without a winner, the game ends in a draw.
+
+---
 
 ## Requirements
 
