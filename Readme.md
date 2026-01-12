@@ -4,8 +4,7 @@
 ## Overview
 
 This project is a **Connect 4 game** implemented in Python.  
-You can play it locally on your computer.  
-An optional HTTP server is included for serving static files if needed.
+You can play it locally on your computer.
 
 ---
 

@@ -1,11 +1,7 @@
 __all__ = ["PLAYER1", "PLAYER2", "Connect4"]
 
 PLAYER1, PLAYER2 = "red", "yellow"
-
-
 class Connect4:
-   
-
     def __init__(self):
         self.moves = []
         self.top = [0 for _ in range(7)]
@@ -13,9 +9,8 @@ class Connect4:
 
     @property
     def last_player(self):
-        """
+        """"
         Player who played the last move.
-
         """
         return PLAYER1 if len(self.moves) % 2 else PLAYER2
 
@@ -23,19 +18,16 @@ class Connect4:
     def last_player_won(self):
         """
         Whether the last move is winning.
-
         """
         b = sum(1 << (8 * column + row) for _, column, row in self.moves[::-2])
+        
         return any(b & b >> v & b >> 2 * v & b >> 3 * v for v in [1, 7, 8, 9])
 
     def play(self, player, column):
         """
         Play a move in a column.
-
         Returns the row where the checker lands.
-
         Raises :exc:`ValueError` if the move is illegal.
-
         """
         if player == self.last_player:
             raise ValueError("It isn't your turn.")
